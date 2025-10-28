@@ -18,6 +18,7 @@ yolo-od-microservice/
 ├── README.md
 ├── docker-compose.yml
 ├── test_detection.py
+├── outputs/                    # Generated annotated images and JSON files
 ├── ui-backend/
 │   ├── app.py
 │   ├── requirements.txt
@@ -106,11 +107,40 @@ curl -X POST "http://localhost:8000/detect" \
       "confidence": 0.76,
       "bbox": [200, 300, 450, 580]
     }
-  ]
+  ],
+  "annotated_image": "/outputs/detection_a1b2c3d4.jpg",
+  "json_file": "/outputs/detection_a1b2c3d4.json"
 }
 ```
 
 **Bounding Box Format**: `[x1, y1, x2, y2]` where (x1, y1) is top-left corner and (x2, y2) is bottom-right corner.
+
+### Output Files
+
+The service automatically generates two files for each detection:
+
+1. **Annotated Image**: Original image with red bounding boxes and labels showing detected objects
+2. **JSON File**: Detection results saved in JSON format
+
+Files are saved in the `outputs/` directory:
+
+```bash
+# View generated files
+ls outputs/
+
+# Open annotated image
+open outputs/detection_a1b2c3d4.jpg
+
+# View JSON file
+cat outputs/detection_a1b2c3d4.json
+```
+
+You can also download files via HTTP:
+
+```bash
+curl http://localhost:8001/outputs/detection_a1b2c3d4.jpg -o result.jpg
+curl http://localhost:8001/outputs/detection_a1b2c3d4.json -o result.json
+```
 
 ### Python Testing Script
 
@@ -131,6 +161,12 @@ Objects found: 2
 2. dog
    Confidence: 0.76
    BBox: [200, 300, 450, 580]
+
+Output Files:
+  Annotated Image: http://localhost:8001/outputs/detection_def45678.jpg
+  JSON File: http://localhost:8001/outputs/detection_def45678.json
+
+  Local files saved in: ./outputs/
 ```
 
 ## Service Endpoints
@@ -144,6 +180,7 @@ Objects found: 2
 ### AI Backend (Port 8001)
 
 - `POST /predict` - Perform object detection on image
+- `GET /outputs/{filename}` - Download annotated image or JSON file
 - `GET /health` - Model and service health check
 
 ## Health Checks
@@ -185,4 +222,3 @@ docker-compose down --volumes --remove-orphans
 - **Classes**: 80 object classes (COCO dataset)
 - **Confidence Threshold**: 0.25 (configurable in `ai-backend/app.py`)
 - **Inference Device**: CPU
-
