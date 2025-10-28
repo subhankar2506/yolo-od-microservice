@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  ui-backend:
+    build: ./ui-backend
+    ports:
+      - "8000:8000"
+    environment:
+      - AI_BACKEND_URL=http://ai-backend:8001
+    depends_on:
+      - ai-backend
+    networks:
+      - detection-network
+
+  ai-backend:
+    build: ./ai-backend
+    ports:
+      - "8001:8001"
+    volumes:
+      - ./outputs:/app/outputs
+    networks:
+      - detection-network
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2G
+
+networks:
+  detection-network:
+    driver: bridge
